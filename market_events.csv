@@ -1,0 +1,64 @@
+date,event,category,impact
+2020-01-20,First COVID-19 case confirmed in South Korea,Geopolitical,High
+2020-02-24,KOSPI circuit breaker triggered as COVID fears spike globally,Macro,High
+2020-03-13,Fed emergency rate cut to 0%; KOSPI drops 8%,Macro,High
+2020-03-19,KOSPI hits 52-week low (1457); KRW/USD spikes to 1285,Macro,High
+2020-03-23,Bank of Korea emergency rate cut to 0.75%,Macro,High
+2020-05-11,Samsung Electronics Q1 2020 earnings beat despite COVID,Earnings,Medium
+2020-07-06,KOSPI breaks 2200 for first time since COVID crash,Macro,Medium
+2020-08-06,Samsung Electronics Q2 2020 earnings release; chip demand surge,Earnings,Medium
+2020-11-09,Pfizer vaccine efficacy announcement; KOSPI rallies 4.3%,Macro,High
+2020-12-10,KOSPI breaks 2700 for first time in history,Macro,High
+2021-01-11,KOSPI hits all-time high 3266; retail investor surge (Donghak Gaeami movement),Macro,High
+2021-02-26,US 10Y Treasury yield spikes to 1.6%; global tech selloff,Macro,High
+2021-04-07,Samsung Electronics Q1 2021 earnings miss on memory pricing,Earnings,Medium
+2021-05-19,Cryptocurrency market crash; Kakao and NAVER drop sharply,Macro,Medium
+2021-06-16,Fed signals earlier-than-expected rate hikes (dot plot),Macro,High
+2021-07-27,China regulatory crackdown on tech sector; KOSPI tech selloff,Geopolitical,High
+2021-10-08,Samsung Electronics Q3 2021 earnings — record operating profit,Earnings,High
+2021-11-26,Omicron variant identified; KOSPI drops 2.4%,Macro,High
+2021-12-15,Fed accelerates tapering; KOSPI volatile,Macro,Medium
+2022-01-05,Fed meeting minutes signal aggressive rate hikes; tech selloff,Macro,High
+2022-02-24,Russia invades Ukraine; KOSPI drops 2.6%; energy stocks spike,Geopolitical,High
+2022-03-16,Fed raises rates 25bp — first hike since 2018,Macro,High
+2022-04-07,Samsung Electronics Q1 2022 preliminary earnings beat,Earnings,Medium
+2022-05-04,Fed raises rates 50bp; KOSPI falls 1.5%,Macro,High
+2022-06-10,US CPI at 8.6% — highest since 1981; global equity selloff,Macro,High
+2022-06-16,Fed raises rates 75bp — largest hike since 1994; KOSPI -2.8%,Macro,High
+2022-07-13,USD/KRW crosses 1320 for first time since 2009,Macro,High
+2022-07-27,Samsung Electronics Q2 2022 earnings — memory chip prices declining,Earnings,High
+2022-09-22,Bank of Korea raises rates 50bp to 3.0%,Macro,Medium
+2022-10-05,Samsung Electronics announces memory chip production cut,Earnings,High
+2022-10-27,Samsung Electronics Q3 2022 earnings miss; operating profit down 31%,Earnings,High
+2022-11-08,FTX collapse triggers crypto selloff; Kakao affected,Macro,Medium
+2022-12-14,Fed raises rates 50bp; signals slower hike pace,Macro,Medium
+2023-01-06,KOSPI opens 2023 strongly; foreign investor net buying,Macro,Medium
+2023-01-31,Samsung Electronics Q4 2022 earnings — operating profit down 69% YoY,Earnings,High
+2023-03-10,Silicon Valley Bank (SVB) collapse; global financial stress,Macro,High
+2023-03-20,Credit Suisse emergency merger with UBS,Macro,High
+2023-04-07,Samsung Electronics announces voluntary memory chip production cut,Earnings,High
+2023-05-25,NVIDIA Q1 2024 guidance shock; AI chip demand boom; SK Hynix surges,Macro,High
+2023-06-16,SK Hynix selected as NVIDIA HBM3 primary supplier; stock +8%,Earnings,High
+2023-07-27,Samsung Electronics Q2 2023 earnings — loss in semiconductor division,Earnings,High
+2023-08-24,NVIDIA Q2 2024 earnings beat; AI semiconductor global rally,Macro,High
+2023-10-07,Hamas attacks Israel; Middle East geopolitical risk spike,Geopolitical,Medium
+2023-10-26,Samsung Electronics Q3 2023 earnings — chip recovery signals,Earnings,Medium
+2023-11-14,US CPI comes in below expectations; rate cut hopes rise,Macro,High
+2023-12-13,Fed signals 3 rate cuts in 2024; global rally; KOSPI +2.1%,Macro,High
+2024-01-18,Samsung Electronics Q4 2023 earnings — chip recovery confirmed,Earnings,Medium
+2024-02-21,NVIDIA Q4 2024 blowout earnings; AI rally continues; SK Hynix +5%,Macro,High
+2024-03-20,Bank of Japan ends negative interest rate policy (NIRP),Macro,High
+2024-04-10,US CPI hotter than expected; rate cut timeline pushed back,Macro,High
+2024-04-12,Iran attacks Israel directly; Middle East escalation,Geopolitical,High
+2024-04-17,Samsung Electronics Q1 2024 preliminary earnings — semiconductor turnaround,Earnings,High
+2024-05-23,NVIDIA Q1 2025 earnings — AI demand record; SK Hynix HBM momentum,Macro,High
+2024-07-11,Global yen carry trade unwind begins; KOSPI volatile,Macro,High
+2024-08-05,KOSPI crashes -8.8% (largest single-day drop since 2020); yen carry trade unwind,Macro,High
+2024-08-06,Emergency BOK statement; KOSPI partial recovery +3.3%,Macro,High
+2024-09-18,Fed cuts rates 50bp — first cut since 2020,Macro,High
+2024-10-08,Samsung Electronics Q3 2024 preliminary earnings miss; HBM supply concerns,Earnings,High
+2024-10-15,Samsung Electronics loses ground to SK Hynix in HBM3E; stock -3%,Earnings,High
+2024-11-05,Donald Trump wins US presidential election; defense/shipbuilding stocks spike,Geopolitical,High
+2024-11-27,Korea martial law crisis (Yoon Suk-yeol declaration); KOSPI drops 2.0%,Geopolitical,High
+2024-12-04,Korea political crisis deepens; impeachment proceedings begin; KRW weakens,Geopolitical,High
+2024-12-14,Korean National Assembly votes to impeach President Yoon,Geopolitical,High
