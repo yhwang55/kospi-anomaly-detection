@@ -2,7 +2,7 @@
 
 An interactive financial anomaly detection system built with **Isolation Forest**, deployed as a Streamlit web app.
 
-**[🚀 Live Demo →](https://your-app.streamlit.app)** &nbsp;|&nbsp; **[📓 Jupyter Notebook →](kospi_anomaly_detection_v2.ipynb)**
+**[🚀 Live Demo →](https://kospi-anomaly-detection-yoonhwang.streamlit.app/)** &nbsp;|&nbsp; **[📓 Jupyter Notebook →](kospi_anomaly_detection.ipynb)**
 
 ---
 
