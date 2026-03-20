@@ -10,12 +10,15 @@ import plotly.graph_objects as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 import yfinance as yf
+import shap
+from scipy.stats import mannwhitneyu
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import precision_score, recall_score, f1_score
 import warnings
 warnings.filterwarnings("ignore")
 
-# ── Page config ────────────────────────────────────────────────────────────
+# ── Page config ─────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="KOSPI Anomaly Detection",
     page_icon="📈",
@@ -23,7 +26,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Custom CSS ─────────────────────────────────────────────────────────────
+# ── Custom CSS ──────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
     .main { background-color: #0f1117; }
@@ -108,26 +111,38 @@ def load_data(start="2020-01-01", end="2024-12-31"):
     volume = volume[close.columns]
     return close, volume
 
-def build_features(close_df, volume_df, ticker):
+def build_features(close_df, volume_df, ticker, use_expanding=False):
     df = pd.DataFrame()
     df['Close']  = close_df[ticker]
     df['Volume'] = volume_df[ticker]
-    df['Return']        = df['Close'].pct_change()
-    df['MA5']           = df['Close'].rolling(5).mean()
-    df['MA20']          = df['Close'].rolling(20).mean()
+    df['Return'] = df['Close'].pct_change()
+
+    if use_expanding:
+        ma5 = df['Close'].expanding(min_periods=5).mean()
+        ma20 = df['Close'].expanding(min_periods=20).mean()
+        vol_mean = df['Volume'].expanding(min_periods=20).mean()
+        vol_std = df['Volume'].expanding(min_periods=20).std()
+        vol_5d = df['Return'].expanding(min_periods=5).std()
+    else:
+        ma5 = df['Close'].rolling(5).mean()
+        ma20 = df['Close'].rolling(20).mean()
+        vol_mean = df['Volume'].rolling(20).mean()
+        vol_std = df['Volume'].rolling(20).std()
+        vol_5d = df['Return'].rolling(5).std()
+
+    df['MA5'] = ma5
+    df['MA20'] = ma20
     df['Price_vs_MA5']  = (df['Close'] - df['MA5'])  / df['MA5']
     df['Price_vs_MA20'] = (df['Close'] - df['MA20']) / df['MA20']
-    vol_mean = df['Volume'].rolling(20).mean()
-    vol_std  = df['Volume'].rolling(20).std()
     df['Volume_zscore'] = (df['Volume'] - vol_mean) / vol_std
-    df['Volatility_5d'] = df['Return'].rolling(5).std()
+    df['Volatility_5d'] = vol_5d
     df['PV_signal']     = df['Return'] * df['Volume_zscore']
     return df.dropna()
 
-@st.cache_data(show_spinner=False)
-def run_model(ticker, n_estimators, threshold_sigma):
+@st.cache_resource(show_spinner=False)
+def get_model_artifacts(ticker, n_estimators, threshold_sigma, use_expanding=False):
     close, volume = load_data()
-    df = build_features(close, volume, ticker)
+    df = build_features(close, volume, ticker, use_expanding=use_expanding)
     scaler   = StandardScaler()
     X_scaled = scaler.fit_transform(df[FEATURE_COLS])
     model    = IsolationForest(n_estimators=n_estimators,
@@ -136,16 +151,21 @@ def run_model(ticker, n_estimators, threshold_sigma):
     threshold = scores.mean() - threshold_sigma * scores.std()
     df['Score']      = scores
     df['Is_Anomaly'] = scores < threshold
+    return df, model, scaler, X_scaled
+
+@st.cache_data(show_spinner=False)
+def run_model(ticker, n_estimators, threshold_sigma, use_expanding=False):
+    df, _, _, _ = get_model_artifacts(ticker, n_estimators, threshold_sigma, use_expanding)
     return df
 
 @st.cache_data(show_spinner=False)
-def run_all_stocks(n_estimators, threshold_sigma):
+def run_all_stocks(n_estimators, threshold_sigma, use_expanding=False):
     close, volume = load_data()
     results = {}
     scaler = StandardScaler()
     for ticker in close.columns:
         try:
-            df  = build_features(close, volume, ticker)
+            df  = build_features(close, volume, ticker, use_expanding=use_expanding)
             X   = scaler.fit_transform(df[FEATURE_COLS])
             mdl = IsolationForest(n_estimators=n_estimators,
                                   contamination='auto', random_state=42)
@@ -161,6 +181,35 @@ def run_all_stocks(n_estimators, threshold_sigma):
         except Exception:
             pass
     return pd.DataFrame(results).T
+
+@st.cache_data(show_spinner=False)
+def run_all_stocks_daily(n_estimators, threshold_sigma, use_expanding=False):
+    close, volume = load_data()
+    scaler = StandardScaler()
+    anomaly_matrix = {}
+    for ticker in close.columns:
+        try:
+            df  = build_features(close, volume, ticker, use_expanding=use_expanding)
+            X   = scaler.fit_transform(df[FEATURE_COLS])
+            mdl = IsolationForest(n_estimators=n_estimators,
+                                  contamination='auto', random_state=42)
+            sc  = mdl.fit(X).score_samples(X)
+            thr = sc.mean() - threshold_sigma * sc.std()
+            pred = pd.Series(sc < thr, index=df.index)
+            anomaly_matrix[ticker] = pred
+        except Exception:
+            continue
+    return pd.DataFrame(anomaly_matrix).sort_index()
+
+@st.cache_data(show_spinner=False)
+def compute_return_zscore(df, use_expanding=False):
+    if use_expanding:
+        mean = df['Return'].expanding(min_periods=20).mean()
+        std = df['Return'].expanding(min_periods=20).std()
+    else:
+        mean = df['Return'].rolling(20).mean()
+        std = df['Return'].rolling(20).std()
+    return (df['Return'] - mean) / std
 
 # ── Sidebar ────────────────────────────────────────────────────────────────
 with st.sidebar:
@@ -183,6 +232,9 @@ with st.sidebar:
     end_year = date_range.split("–")[1]
 
     st.markdown("---")
+    use_expanding = st.checkbox("Use expanding window (no look-ahead bias)", value=False)
+
+    st.markdown("---")
     st.markdown("""
     <div style='color:#8b95b0; font-size:12px; line-height:1.6'>
     <b>Model:</b> Isolation Forest<br>
@@ -197,7 +249,9 @@ with st.spinner("Loading market data..."):
     close, volume = load_data()
 
 with st.spinner("Running Isolation Forest..."):
-    df_feat = run_model(ticker_name, n_estimators, threshold_sigma)
+    df_feat, iso_model, scaler, X_scaled = get_model_artifacts(
+        ticker_name, n_estimators, threshold_sigma, use_expanding=use_expanding
+    )
 
 anomalies  = df_feat[df_feat['Is_Anomaly']]
 n_anom     = len(anomalies)
@@ -225,7 +279,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 metrics = [
     (c1, "Trading Days Analyzed", f"{total_days:,}", None),
     (c2, "Anomaly Days Detected",  f"{n_anom}",       f"{anom_rate:.1f}% of total"),
-    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%", f"vs {norm_ret:+.2f}% normal"),
+    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%%", f"vs {norm_ret:+.2f}%% normal"),
     (c4, "Return Magnitude",       f"{ret_mult:.1f}×", "anomaly vs normal"),
     (c5, "Model Trees",            f"{n_estimators}",  f"σ threshold: {threshold_sigma}"),
 ]
@@ -241,9 +295,10 @@ for col, label, val, delta in metrics:
 st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Tab layout ─────────────────────────────────────────────────────────────
-tab1, tab2, tab3, tab4 = st.tabs([
-    "📊 Anomaly Detection", "🔬 Feature Analysis",
-    "🏢 Cross-Stock Comparison", "📅 Market Event Validation"
+tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
+    "Anomaly Detection", "Feature Analysis",
+    "Cross-Stock Comparison", "Market Event Validation",
+    "Cross-Stock Heatmap", "SHAP Explanation", "Model Comparison"
 ])
 
 # ══════════════════════════════════════════════════════════════════════════
@@ -401,7 +456,7 @@ with tab2:
     fig3.update_layout(
         height=280, template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title='Separation (Cohen\'s d)', yaxis_title='',
+        xaxis_title='Separation (Cohen's d)', yaxis_title='',
         margin=dict(l=0, r=60, t=10, b=0),
     )
     fig3.update_xaxes(gridcolor='#1e2130')
@@ -415,7 +470,7 @@ with tab3:
                 unsafe_allow_html=True)
 
     with st.spinner("Running model on all stocks..."):
-        summary_df = run_all_stocks(n_estimators, threshold_sigma)
+        summary_df = run_all_stocks(n_estimators, threshold_sigma, use_expanding=use_expanding)
 
     summary_df = summary_df.sort_values('Anomaly Rate (%)', ascending=False)
     rates = summary_df['Anomaly Rate (%)'].astype(float)
@@ -499,7 +554,7 @@ with tab4:
     for col, label, val, color in [
         (k1, "Anomalies Detected",    str(len(match_df)),          "#4fc3f7"),
         (k2, "Matched to Events",     str(len(validated)),          "#66bb6a"),
-        (k3, "Validation Rate",       f"{val_rate:.0f}%",           "#ce93d8"),
+        (k3, "Validation Rate",       f"{val_rate:.0f}%%",           "#ce93d8"),
     ]:
         col.markdown(f"""
         <div class='metric-card'>
@@ -596,6 +651,174 @@ with tab4:
             showlegend=False,
         )
         st.plotly_chart(fig6, use_container_width=True)
+
+    # Event recall by category
+    st.markdown("<div class='section-header'>Event Recall by Category</div>",
+                unsafe_allow_html=True)
+    event_matches = []
+    for _, event in MARKET_EVENTS.iterrows():
+        event_window = (anomalies.index >= event['date'] - WINDOW) & (anomalies.index <= event['date'] + WINDOW)
+        event_matches.append({
+            'Event Date': event['date'].strftime('%Y-%m-%d'),
+            'Event': event['event'],
+            'Category': event['category'],
+            'Impact': event['impact'],
+            'Detected': bool(event_window.any()),
+        })
+    event_match_df = pd.DataFrame(event_matches)
+    recall_overall = event_match_df['Detected'].mean() * 100 if len(event_match_df) > 0 else 0
+
+    recall_by_cat = (
+        event_match_df.groupby('Category')['Detected']
+        .mean()
+        .mul(100)
+        .reset_index()
+        .rename(columns={'Detected': 'Recall (%)'})
+    )
+
+    st.markdown(f"Overall recall: {recall_overall:.1f}%")
+    st.dataframe(recall_by_cat, use_container_width=True, height=200)
+
+# ══════════════════════════════════════════════════════════════════════════
+# TAB 5: Cross-Stock Heatmap
+# ══════════════════════════════════════════════════════════════════════════
+with tab5:
+    st.markdown("<div class='section-header'>Cross-Stock Anomaly Clustering</div>",
+                unsafe_allow_html=True)
+
+    with st.spinner("Computing cross-stock anomaly matrix..."):
+        anomaly_matrix = run_all_stocks_daily(n_estimators, threshold_sigma, use_expanding=use_expanding)
+
+    cluster_counts = anomaly_matrix.sum(axis=1)
+    cluster_dates = cluster_counts[cluster_counts >= 3]
+
+    if not anomaly_matrix.empty:
+        heatmap = px.imshow(
+            anomaly_matrix.T.astype(int),
+            color_continuous_scale=[[0, '#1e2130'], [1, '#ef5350']],
+            aspect='auto',
+            labels=dict(x='Date', y='Stock', color='Anomaly')
+        )
+        heatmap.update_layout(
+            height=450,
+            template='plotly_dark',
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)'
+        )
+        st.plotly_chart(heatmap, use_container_width=True)
+
+    st.markdown("<div class='section-header'>Clustered Dates (3+ Stocks)</div>",
+                unsafe_allow_html=True)
+    if cluster_dates.empty:
+        st.write("No clustered dates found for the current parameters.")
+    else:
+        cluster_df = cluster_dates.reset_index()
+        cluster_df.columns = ['Date', 'Anomalous Stocks']
+        cluster_df['Date'] = cluster_df['Date'].dt.strftime('%Y-%m-%d')
+        st.dataframe(cluster_df.sort_values('Anomalous Stocks', ascending=False),
+                     use_container_width=True, height=260)
+
+# ══════════════════════════════════════════════════════════════════════════
+# TAB 6: SHAP Explanation
+# ══════════════════════════════════════════════════════════════════════════
+with tab6:
+    st.markdown("<div class='section-header'>SHAP Feature Attribution</div>",
+                unsafe_allow_html=True)
+
+    if anomalies.empty:
+        st.write("No anomalies detected for the current parameters.")
+    else:
+        anomaly_dates = anomalies.index.strftime('%Y-%m-%d').tolist()
+        selected_date = st.selectbox("Select anomaly date", anomaly_dates)
+        selected_ts = pd.to_datetime(selected_date)
+        idx = df_feat.index.get_loc(selected_ts)
+
+        explainer = shap.TreeExplainer(iso_model)
+        row_scaled = X_scaled[idx:idx+1]
+        shap_values = explainer.shap_values(row_scaled)
+        if isinstance(shap_values, list):
+            shap_values = shap_values[0]
+
+        shap_df = pd.DataFrame({
+            'Feature': FEATURE_COLS,
+            'SHAP Value': shap_values[0]
+        })
+        shap_df['Abs'] = shap_df['SHAP Value'].abs()
+        shap_df = shap_df.sort_values('Abs', ascending=False)
+
+        fig_shap = go.Figure(go.Bar(
+            x=shap_df['SHAP Value'],
+            y=shap_df['Feature'],
+            orientation='h',
+            marker_color='#ce93d8',
+        ))
+        fig_shap.update_layout(
+            height=320,
+            template='plotly_dark',
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            xaxis_title='SHAP Value',
+            yaxis_title=''
+        )
+        st.plotly_chart(fig_shap, use_container_width=True)
+
+        st.markdown("<div class='section-header'>Feature Values</div>",
+                    unsafe_allow_html=True)
+        feature_values = df_feat.loc[selected_ts, FEATURE_COLS].to_frame('Value')
+        st.dataframe(feature_values, use_container_width=True, height=240)
+
+# ══════════════════════════════════════════════════════════════════════════
+# TAB 7: Model Comparison
+# ══════════════════════════════════════════════════════════════════════════
+with tab7:
+    st.markdown("<div class='section-header'>Isolation Forest vs Z-Score Baseline</div>",
+                unsafe_allow_html=True)
+
+    z_scores = compute_return_zscore(df_feat, use_expanding=use_expanding)
+    z_anomaly = z_scores.abs() > 3.0
+    pseudo_labels = z_scores.abs() > 2.0
+
+    mask = pseudo_labels.notna()
+    if mask.sum() > 0:
+        if_precision = precision_score(pseudo_labels[mask], df_feat.loc[mask, 'Is_Anomaly'])
+        if_recall = recall_score(pseudo_labels[mask], df_feat.loc[mask, 'Is_Anomaly'])
+        if_f1 = f1_score(pseudo_labels[mask], df_feat.loc[mask, 'Is_Anomaly'])
+
+        zs_precision = precision_score(pseudo_labels[mask], z_anomaly[mask])
+        zs_recall = recall_score(pseudo_labels[mask], z_anomaly[mask])
+        zs_f1 = f1_score(pseudo_labels[mask], z_anomaly[mask])
+    else:
+        if_precision = if_recall = if_f1 = 0
+        zs_precision = zs_recall = zs_f1 = 0
+
+    metrics_df = pd.DataFrame({
+        'Model': ['Isolation Forest', 'Z-score Baseline'],
+        'Precision': [if_precision, zs_precision],
+        'Recall': [if_recall, zs_recall],
+        'F1': [if_f1, zs_f1]
+    })
+    st.dataframe(metrics_df, use_container_width=True, height=180)
+
+    st.markdown("<div class='section-header'>Return Distribution</div>",
+                unsafe_allow_html=True)
+    normal_returns = df_feat.loc[~df_feat['Is_Anomaly'], 'Return'] * 100
+    anomaly_returns = df_feat.loc[df_feat['Is_Anomaly'], 'Return'] * 100
+
+    if len(anomaly_returns) > 0 and len(normal_returns) > 0:
+        stat, pvalue = mannwhitneyu(anomaly_returns, normal_returns, alternative='two-sided')
+        st.markdown(f"Mann-Whitney U p-value: {pvalue:.4f}")
+
+        fig_box = go.Figure()
+        fig_box.add_trace(go.Box(y=normal_returns, name='Normal', marker_color='#4fc3f7'))
+        fig_box.add_trace(go.Box(y=anomaly_returns, name='Anomaly', marker_color='#ef5350'))
+        fig_box.update_layout(
+            height=320,
+            template='plotly_dark',
+            paper_bgcolor='rgba(0,0,0,0)',
+            plot_bgcolor='rgba(0,0,0,0)',
+            yaxis_title='Return (%)'
+        )
+        st.plotly_chart(fig_box, use_container_width=True)
 
 # ── Footer ─────────────────────────────────────────────────────────────────
 st.markdown("---")
