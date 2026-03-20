@@ -228,7 +228,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 metrics = [
     (c1, "Trading Days Analyzed", f"{total_days:,}", None),
     (c2, "Anomaly Days Detected",  f"{n_anom}",       f"{anom_rate:.1f}% of total"),
-    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%," f" vs {norm_ret:+.2f}% normal"),
+    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%", f" vs {norm_ret:+.2f}% normal"),
     (c4, "Return Magnitude",       f"{ret_mult:.1f}×", "anomaly vs normal"),
     (c5, "Model Trees",            f"{n_estimators}",  f"σ threshold: {threshold_sigma}"),
 ]
@@ -502,7 +502,7 @@ with tab4:
     for col, label, val, color in [
         (k1, "Anomalies Detected",    str(len(match_df)),          "#4fc3f7"),
         (k2, "Matched to Events",     str(len(validated)),          "#66bb6a"),
-        (k3, "Validation Rate",       f"{val_rate:.0f}%,"           "#ce93d8"),
+        (k3, "Validation Rate",       f"{val_rate:.0f}%",           "#ce93d8"),
     ]:
         col.markdown(f"""
         <div class='metric-card'>
