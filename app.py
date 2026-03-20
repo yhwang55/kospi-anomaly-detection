@@ -279,7 +279,7 @@ c1, c2, c3, c4, c5 = st.columns(5)
 metrics = [
     (c1, "Trading Days Analyzed", f"{total_days:,}", None),
     (c2, "Anomaly Days Detected",  f"{n_anom}",       f"{anom_rate:.1f}% of total"),
-    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%%", f"vs {norm_ret:+.2f}%% normal"),
+    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%," f"vs {norm_ret:+.2f}% normal"),
     (c4, "Return Magnitude",       f"{ret_mult:.1f}×", "anomaly vs normal"),
     (c5, "Model Trees",            f"{n_estimators}",  f"σ threshold: {threshold_sigma}"),
 ]
@@ -456,7 +456,7 @@ with tab2:
     fig3.update_layout(
         height=280, template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        xaxis_title='Separation (Cohen's d)', yaxis_title='',
+        xaxis_title="Separation (Cohen's d)", yaxis_title='',
         margin=dict(l=0, r=60, t=10, b=0),
     )
     fig3.update_xaxes(gridcolor='#1e2130')
@@ -469,7 +469,7 @@ with tab3:
     st.markdown("<div class='section-header'>Anomaly Rate Across All 20 KOSPI Stocks</div>",
                 unsafe_allow_html=True)
 
-    with st.spinner("Running model on all stocks..."):
+    with st.spinner("Running model on all stocks..."): 
         summary_df = run_all_stocks(n_estimators, threshold_sigma, use_expanding=use_expanding)
 
     summary_df = summary_df.sort_values('Anomaly Rate (%)', ascending=False)
@@ -554,7 +554,7 @@ with tab4:
     for col, label, val, color in [
         (k1, "Anomalies Detected",    str(len(match_df)),          "#4fc3f7"),
         (k2, "Matched to Events",     str(len(validated)),          "#66bb6a"),
-        (k3, "Validation Rate",       f"{val_rate:.0f}%%",           "#ce93d8"),
+        (k3, "Validation Rate",       f"{val_rate:.0f}%,"           "#ce93d8"),
     ]:
         col.markdown(f"""
         <div class='metric-card'>
