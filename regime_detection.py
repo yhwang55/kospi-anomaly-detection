@@ -12,6 +12,7 @@ import requests
 import yfinance as yf
 from hmmlearn.hmm import GaussianHMM
 from sklearn.ensemble import IsolationForest
+from sklearn.exceptions import ConvergenceWarning
 from sklearn.preprocessing import StandardScaler
 
 @dataclass
@@ -193,7 +194,7 @@ def compute_hmm_regime(returns: pd.Series, n_states: int = 2) -> pd.Series:
         random_state=42,
     )
     with warnings.catch_warnings():
-        warnings.simplefilter("ignore")
+        warnings.simplefilter("ignore", ConvergenceWarning)
         model.fit(data)
     states = model.predict(data)
 
