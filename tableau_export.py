@@ -67,7 +67,8 @@ def build_tableau_dataset(config: TableauExportConfig) -> pd.DataFrame:
     merged["anomaly_frequency_weekly"] = merged["anomaly_flag"].rolling(5).mean()
 
     merged = merged.ffill()
-    merged = merged.dropna(subset=["kospi_price"])\n
+    merged = merged.dropna(subset=["kospi_price"])
+
     columns = [
         "date",
         "kospi_price",
