@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+import warnings
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Dict, List, Tuple
@@ -61,7 +62,8 @@ def build_ticker_map(krx_df: pd.DataFrame | None) -> Dict[str, str]:
     """
     Build ticker map: {yfinance_ticker: name}.
     Falls back to a representative subset if KRX fetch fails.
-    """\n    if krx_df is not None:
+    """
+    if krx_df is not None:
         return {f"{row['ticker_krx']}.KS": row["name"] for _, row in krx_df.iterrows()}
 
     fallback = {
@@ -190,7 +192,9 @@ def compute_hmm_regime(returns: pd.Series, n_states: int = 2) -> pd.Series:
         n_iter=1000,
         random_state=42,
     )
-    model.fit(data)
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        model.fit(data)
     states = model.predict(data)
 
     # Map to bull/bear based on mean return in each state
@@ -205,6 +209,7 @@ def compute_cusum_regime(returns: pd.Series, threshold: float = 0.02) -> pd.Seri
     Simple CUSUM change-point regime detection.
     Returns regime labels (1 = bull, 0 = bear).
     """
+    returns = pd.to_numeric(returns, errors="coerce").dropna()
     mean_return = returns.mean()
     s_pos = 0.0
     s_neg = 0.0
