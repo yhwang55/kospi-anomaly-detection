@@ -46,15 +46,37 @@ def compute_weekly_anomaly_frequency(df: pd.DataFrame, weekly_rule: str) -> pd.D
     df["date"] = pd.to_datetime(df["date"])
     df = df.set_index("date")
 
+    macro_cols = [
+        c for c in df.columns if c not in {"regime_hmm", "regime_cusum", "anomaly_flag"}
+    ]
+
+    df["anomaly_flag"] = pd.to_numeric(df["anomaly_flag"], errors="coerce")
+    df[macro_cols] = df[macro_cols].apply(pd.to_numeric, errors="coerce")
+
     weekly_anom = df["anomaly_flag"].resample(weekly_rule).mean().rename("anomaly_frequency")
-    macro_cols = [c for c in df.columns if c not in {"regime_hmm", "regime_cusum", "anomaly_flag"}]
     weekly_macro = df[macro_cols].resample(weekly_rule).mean()
 
-    weekly = pd.concat([weekly_anom, weekly_macro], axis=1).dropna().reset_index()
+    weekly = pd.concat([weekly_anom, weekly_macro], axis=1)
+
+    # Drop macro columns that are entirely NaN after resample
+    weekly = weekly.dropna(axis=1, how="all")
+
+    # Drop rows with any NaNs in predictors or target
+    weekly = weekly.dropna().reset_index()
     return weekly
+
+def validate_weekly(weekly: pd.DataFrame) -> None:
+    """Ensure weekly dataset is non-empty before modeling."""
+    if weekly.empty:
+        raise ValueError(
+            "Weekly dataset is empty after merging and resampling. "
+            "Check that data/macro_factors.csv and data/regime_labels.csv share overlapping dates "
+            "and contain non-NaN macro factors and anomaly_flag values."
+        )
 
 def run_ols(weekly: pd.DataFrame) -> pd.DataFrame:
     """Run OLS regression: anomaly_frequency ~ macro_factors."""
+    validate_weekly(weekly)
     y = weekly["anomaly_frequency"]
     X = weekly.drop(columns=["date", "anomaly_frequency"])
     X = sm.add_constant(X)
@@ -78,6 +100,7 @@ def run_ols(weekly: pd.DataFrame) -> pd.DataFrame:
 
 def compute_shap(weekly: pd.DataFrame, n_estimators: int, random_state: int) -> pd.DataFrame:
     """Compute SHAP values using RandomForestRegressor."""
+    validate_weekly(weekly)
     y = weekly["anomaly_frequency"]
     X = weekly.drop(columns=["date", "anomaly_frequency"])
 
