@@ -1,5 +1,7 @@
+"""
 KOSPI Anomaly Detection Dashboard
 Yoon Hwang — Portfolio Project
+"""
 
 import streamlit as st
 import pandas as pd
@@ -47,8 +49,7 @@ st.markdown("""
     }
     div[data-testid="stSidebar"] { background-color: #1a1d2e; }
 </style>
-""", unsafe_allow_html=True)
-
+""", unsafe_allow_html=True)\n
 # ── Constants ──────────────────────────────────────────────────────────────
 TICKERS = {
     '005930.KS': 'Samsung Electronics',
@@ -169,11 +170,9 @@ def load_tableau_data():
     df = pd.read_csv("tableau/kospi_dashboard_data.csv", parse_dates=["date"])
     return df.sort_values("date")
 
-
 @st.cache_data(show_spinner=False)
 def load_regression_summary():
     return pd.read_csv("results/regression_summary.csv")
-
 
 @st.cache_data(show_spinner=False)
 def load_shap_values():
@@ -242,9 +241,9 @@ c1, c2, c3, c4, c5 = st.columns(5)
 metrics = [
     (c1, "Trading Days Analyzed", f"{total_days:,}", None),
     (c2, "Anomaly Days Detected",  f"{n_anom}",       f"{anom_rate:.1f}% of total"),
-    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f}%," f" vs {norm_ret:+.2f}% normal"),
+    (c3, "Avg Anomaly Return",     f"{avg_ret:+.2f} %", f" vs {norm_ret:+.2f}% normal"),
     (c4, "Return Magnitude",       f"{ret_mult:.1f}×", "anomaly vs normal"),
-    (c5, "Model Trees",            f"{n_estimators}",  f"σ threshold: {threshold_sigma}"),
+    (c5, "Model Trees",            f"{n_estimators}",   f"σ threshold: {threshold_sigma}"),
 ]
 for col, label, val, delta in metrics:
     delta_html = f"<div class='metric-delta' style='color:#8b95b0'>{delta}</div>" if delta else ""
@@ -432,7 +431,7 @@ with tab3:
     st.markdown("<div class='section-header'>Anomaly Rate Across All 20 KOSPI Stocks</div>",
                 unsafe_allow_html=True)
 
-    with st.spinner("Running model on all stocks..."):
+    with st.spinner("Running model on all stocks..."): 
         summary_df = run_all_stocks(n_estimators, threshold_sigma)
 
     summary_df = summary_df.sort_values('Anomaly Rate (%)', ascending=False)
@@ -517,7 +516,7 @@ with tab4:
     for col, label, val, color in [
         (k1, "Anomalies Detected",    str(len(match_df)),          "#4fc3f7"),
         (k2, "Matched to Events",     str(len(validated)),          "#66bb6a"),
-        (k3, "Validation Rate",       f"{val_rate:.0f}%,"           "#ce93d8"),
+        (k3, "Validation Rate",       f"{val_rate:.0f}% ,"           "#ce93d8"),
     ]:
         col.markdown(f"""
         <div class='metric-card'>
@@ -738,7 +737,7 @@ with tab7:
         fig_shap.update_layout(
             height=320, template='plotly_dark',
             paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-            yaxis_title='Mean |SHAP|', margin=dict(l=0, r=0, t=10, b=0),
+            yaxis_title='Mean |SHAP|', margin=dict(l=0, r=10, t=10, b=0),
         )
         fig_shap.update_xaxes(gridcolor='#1e2130')
         fig_shap.update_yaxes(gridcolor='#1e2130')
