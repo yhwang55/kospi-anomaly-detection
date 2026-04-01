@@ -204,7 +204,8 @@ with st.sidebar:
     <div style='color:#8b95b0; font-size:12px; line-height:1.6'>
     <b>Model:</b> Isolation Forest<br>
     <b>Universe:</b> KOSPI Top-20 by market cap<br>
-    <b>Features:</b> Return, MA deviation,<br>&nbsp;&nbsp;Volume Z-score, Volatility, PV signal<br>
+    <b>Features:</b> Return, MA deviation,<br>
+    &nbsp;&nbsp;Volume Z-score, Volatility, PV signal<br>
     <b>Data:</b> yfinance · 2020–2024
     </div>
     """, unsafe_allow_html=True)
@@ -517,7 +518,7 @@ with tab4:
     for col, label, val, color in [
         (k1, "Anomalies Detected",    str(len(match_df)),          "#4fc3f7"),
         (k2, "Matched to Events",     str(len(validated)),          "#66bb6a"),
-        (k3, "Validation Rate",       f"{val_rate:.0f}% ,"           "#ce93d8"),
+        (k3, "Validation Rate",       f"{val_rate:.0f}%,",           "#ce93d8"),
     ]:
         col.markdown(f"""
         <div class='metric-card'>
@@ -691,7 +692,7 @@ with tab6:
     fig_regime.update_layout(
         height=450, template='plotly_dark',
         paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
-        yaxis_title='KOSPI', margin=dict(l=0, r=0, t=10, b=0),
+        yaxis_title='KOSPI', margin=dict(l=0, r=10, t=10, b=0),
         legend=dict(orientation='h', yanchor='bottom', y=1.01, xanchor='right', x=1),
     )
     fig_regime.update_xaxes(gridcolor='#1e2130')
@@ -700,7 +701,7 @@ with tab6:
 
 # ══════════════════════════════════════════════════════════════════════════
 # TAB 7: Factor Attribution
-# ═════════════════════════════════════════════════���════════════════════════
+# ══════════════════════════════════════════════════════════════════════════
 with tab7:
     st.markdown("<div class='section-header'>Factor Attribution</div>", unsafe_allow_html=True)
 
