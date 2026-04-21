@@ -1,4 +1,4 @@
-# KOSPI Stock Anomaly Detection (2020–2024)
+# KOSPI Stock Anomaly Detection (2020–2026)
 
 Detect abnormal trading days across KOSPI blue-chip stocks using Isolation Forest and validate signals against 63 real-world market events.
 
