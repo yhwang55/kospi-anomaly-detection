@@ -18,7 +18,7 @@ warnings.filterwarnings("ignore")
 # ── Page config ────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="KOSPI Anomaly Detection",
-    page_icon="📈",
+    page_icon="",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -757,7 +757,7 @@ with tab7:
 st.markdown("---")
 st.markdown("""
 <div style='text-align:center; color:#4a5080; font-size:12px; padding:8px 0'>
-    KOSPI Anomaly Detection · Yoon Hwang · UW–Madison Data Science & Economics · 2025<br>
+    KOSPI Anomaly Detection · Yoon Hwang · UW–Madison Data Science & Economics % Information Science · 2025<br>
     Isolation Forest · yfinance · Streamlit · Plotly
 </div>
 """, unsafe_allow_html=True)
