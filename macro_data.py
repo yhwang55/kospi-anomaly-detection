@@ -58,17 +58,17 @@ def fetch_bok_base_rate_ecos(
     Returns a monthly Series with datetime index, or None on failure.
     """
     # ECOS API date format: YYYYMMDD
-    start = start_date.replace("-", "")
-    end = end_date.replace("-", "")
+    start = start_date.replace("-", "")[:6]
+    end = end_date.replace("-", "")[:6]
 
     stat_code = "722Y001"
     cycle = "M"
     item_code1 = "0101000"
 
     url = (
-        "https://ecos.bok.or.kr/api/StatisticSearch/"
-        f"{api_key}/json/kr/1/10000/"
-        f"{stat_code}/{cycle}/{start}/{end}/{item_code1}"
+        f"https://ecos.bok.or.kr/api/StatisticSearch/"
+    	f"{api_key}/json/kr/1/10000/"
+    	f"{stat_code}/{cycle}/{start}/{end}/{item_code1}"
     )
 
     try:

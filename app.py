@@ -167,6 +167,7 @@ def run_all_stocks(n_estimators, threshold_sigma):
 
 
 @st.cache_data(show_spinner=False)
+@st.cache_data(show_spinner=False)
 def load_tableau_data():
     df = pd.read_csv("tableau/kospi_dashboard_data.csv", parse_dates=["date"])
     return df.sort_values("date")
@@ -637,9 +638,16 @@ with tab5:
                                    name='Inflation Exp', line=dict(color='#ce93d8')),
                         row=4, col=1)
 
-    anom_dates = df_macro.loc[df_macro['anomaly_flag'] == 1, 'date']
-    for dt in anom_dates:
-        fig_macro.add_vline(x=dt, line_width=0.8, line_dash='dot', line_color='#ef5350', opacity=0.6)
+    anom_dates = df_macro.loc[df_macro['anomaly_flag'] == 1.0, 'date'].dropna()
+    if not anom_dates.empty:
+        fig_macro.add_trace(go.Scatter(
+            x=anom_dates,
+            y=[df_macro['vix'].max()] * len(anom_dates),
+            mode='markers',
+            marker=dict(color='#ef5350', size=6, symbol='line-ns-open'),
+            name='Anomaly',
+            showlegend=True,
+        ), row=1, col=1)
 
     fig_macro.update_layout(
         height=700, template='plotly_dark',
