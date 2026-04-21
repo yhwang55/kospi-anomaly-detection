@@ -2,7 +2,7 @@
 
 Detect abnormal trading days across KOSPI blue-chip stocks using Isolation Forest and validate signals against 63 real-world market events.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit)](https://kospi-anomaly-detection-yoonhwang.streamlit.app/) [![Notebook](https://img.shields.io/badge/Notebook-Jupyter-orange?logo=jupyter)](kospi_anomaly_detection.ipynb) [![Tableau](https://img.shields.io/badge/Dashboard-Tableau-blue?logo=tableau)](https://public.tableau.com/app/profile/yoon.hwang7766/viz/KOSPIAnomalyDetectionMacroFactorAnalysis/KOSPIAnomalyDetectionMacroFactorAnalysis)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit)](https://kospi-anomaly-detection-yoonhwang.streamlit.app/) [![Notebook](https://img.shields.io/badge/Notebook-Jupyter-orange?logo=jupyter)](kospi_anomaly_detection.ipynb) [![Tableau](https://img.shields.io/badge/Dashboard-Tableau-blue?logo=tableau)](https://public.tableau.com/app/profile/yoon.hwang7766/viz/KOSPIAnomalyDetectionMacroFactorAnalysis/KOSPIAnomalyDetectionMacroFactorAnalysis) [![Report](https://img.shields.io/badge/Report-PDF-red?logo=adobeacrobatreader)](KOSPI_Project_Report.pdf)
 
 ---
 
