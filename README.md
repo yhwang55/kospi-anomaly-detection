@@ -2,7 +2,7 @@
 
 Detect abnormal trading days across KOSPI blue-chip stocks using Isolation Forest and validate signals against 63 real-world market events.
 
-[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit)](https://kospi-anomaly-detection-yoonhwang.streamlit.app/) [![Notebook](https://img.shields.io/badge/Notebook-Jupyter-orange?logo=jupyter)](kospi_anomaly_detection.ipynb)
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Streamlit-ff4b4b?logo=streamlit)](https://kospi-anomaly-detection-yoonhwang.streamlit.app/) [![Notebook](https://img.shields.io/badge/Notebook-Jupyter-orange?logo=jupyter)](kospi_anomaly_detection.ipynb) [![Tableau](https://img.shields.io/badge/Dashboard-Tableau-blue?logo=tableau)](https://public.tableau.com/app/profile/yoon.hwang7766/viz/KOSPIAnomalyDetectionMacroFactorAnalysis/KOSPIAnomalyDetectionMacroFactorAnalysis)
 
 ---
 
@@ -92,4 +92,4 @@ streamlit run app.py
 
 ---
 
-*Yoon Hwang · Data Science & Economics · University of Wisconsin–Madison · 2025*
+*Yoon Hwang · Data Science & Economics & Information Science · University of Wisconsin–Madison · 2025*
