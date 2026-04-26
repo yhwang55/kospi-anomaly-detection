@@ -229,7 +229,7 @@ ret_mult   = abs(avg_ret / norm_ret) if norm_ret != 0 else 0
 # ── Header ─────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <h1 style='color:#e8ecf5; font-size:28px; font-weight:700; margin-bottom:4px'>
-📈 KOSPI Anomaly Detection Dashboard
+KOSPI Anomaly Detection Dashboard
 </h1>
 <p style='color:#8b95b0; font-size:14px; margin-top:0'>
 Isolation Forest · {ticker_name} · 2020–{end_year} &nbsp;|&nbsp;
