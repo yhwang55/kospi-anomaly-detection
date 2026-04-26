@@ -182,7 +182,7 @@ def load_shap_values():
 
 # ── Sidebar ────────────────────────────────────────────────────────────────
 with st.sidebar:
-    st.markdown("## ⚙️ Model Parameters")
+    st.markdown("## Model Parameters")
     ticker_name = st.selectbox("Stock", sorted(TICKERS.values()), index=0)
     ticker_code = {v: k for k, v in TICKERS.items()}[ticker_name]
 
@@ -192,7 +192,7 @@ with st.sidebar:
                                 help="Lower = more anomalies detected")
 
     st.markdown("---")
-    st.markdown("### 📅 Date Range")
+    st.markdown("### Date Range")
     date_range = st.select_slider(
         "Analysis Period",
         options=["2020–2021", "2020–2022", "2020–2023", "2020–2024"],
@@ -261,9 +261,9 @@ st.markdown("<br>", unsafe_allow_html=True)
 
 # ── Tab layout ─────────────────────────────────────────────────────────────
 tab1, tab2, tab3, tab4, tab5, tab6, tab7 = st.tabs([
-    "📊 Anomaly Detection", "🔬 Feature Analysis",
-    "🏢 Cross-Stock Comparison", "📅 Market Event Validation",
-    "🌐 Macro Overview", "🧭 Regime Analysis", "🧮 Factor Attribution"
+    "Anomaly Detection", "Feature Analysis",
+    "Cross-Stock Comparison", "Market Event Validation",
+    "Macro Overview", "Regime Analysis", "Factor Attribution"
 ])
 
 # ══════════════════════════════════════════════════════════════════════════
