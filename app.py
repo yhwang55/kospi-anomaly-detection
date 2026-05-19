@@ -42,7 +42,7 @@ TRANSLATIONS = {
         ],
         'dashboard_note': 'Use the tabs below to switch between anomaly detection, feature analysis, cross-stock comparison, market event validation, macro overview, regime analysis, and factor attribution.',
         'hero_kicker': 'Market Regime Intelligence',
-        'hero_title': 'KOSPI anomaly signals, cleaned for fast decision-making.',
+        'hero_title': 'KOSPI Anomaly Signals',
         'hero_subtitle': 'Explore abnormal trading days for {ticker} under the {date_range} window, compare how anomalies differ from normal sessions, and validate signals against curated macro, geopolitical, and earnings events.',
         'hero_pills': ['Model', 'Universe', 'Anomalies', 'Range', 'Analyst'],
             'spinner_loading_data': 'Loading market data...',
@@ -769,14 +769,19 @@ def run_all_stocks(n_estimators, threshold_sigma, start_date, end_date):
             pass
     return pd.DataFrame(results).T
 
-# ── Sidebar ────────────────────────────────────────────────────────────────
-with st.sidebar:
-    lang_map = {'English':'en', '한국어':'ko'}
-    cur_lang = st.session_state.get('ui_lang', 'ko')
-    cur_display = [k for k,v in lang_map.items() if v == cur_lang][0]
-    sel = st.selectbox("Language / 언어", options=list(lang_map.keys()), index=list(lang_map.keys()).index(cur_display))
+# ── Header: language selector ──────────────────────────────────────────────
+lang_map = {'English':'en', '한국어':'ko'}
+if 'ui_lang' not in st.session_state:
+    st.session_state['ui_lang'] = 'en'
+cur_lang = st.session_state.get('ui_lang', 'en')
+cur_display = [k for k,v in lang_map.items() if v == cur_lang][0]
+_, lang_col = st.columns([9, 1])
+with lang_col:
+    sel = st.selectbox("", options=list(lang_map.keys()), index=list(lang_map.keys()).index(cur_display))
     st.session_state['ui_lang'] = lang_map[sel]
 
+# ── Sidebar ────────────────────────────────────────────────────────────────
+with st.sidebar:
     st.markdown(f"## {tr('sidebar_model_params')}")
     ticker_name = st.selectbox(tr('select_stock'), sorted(TICKERS.values()), index=0)
     ticker_code = {v: k for k, v in TICKERS.items()}[ticker_name]
